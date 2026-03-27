@@ -1,0 +1,109 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - uid: string (required, immutable) - User ID
+    //   - name: string (required) - User's name
+    //   - email: string (required, immutable) - User's email
+    //   - createdAt: timestamp (required, immutable) - Creation timestamp
+    //
+    // Collection: books
+    // Document ID: {bookId}
+    // Fields:
+    //   - title: string (required) - Book title
+    //   - synopsis: string (optional) - Synopsis
+    //   - author: string (optional) - Author
+    //   - ownerId: string (required, immutable) - Owner User ID
+    //   - ownerName: string (required) - Owner User Name
+    //   - ownerEmail: string (optional) - Owner User Email
+    //   - borrowerId: string (optional) - Borrower User ID
+    //   - borrowerName: string (optional) - Borrower User Name
+    //   - loanDate: timestamp (optional) - Date of loan
+    //   - returnDate: timestamp (optional) - Expected return date
+    //   - status: string (required) - 'disponível', 'emprestado', 'em processo de empréstimo'
+    //   - ownerConfirmed: boolean (optional)
+    //   - borrowerConfirmed: boolean (optional)
+    //   - createdAt: timestamp (required, immutable) - Creation timestamp
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isEmployee() {
+      return isAuthenticated() && request.auth.token.email != null && request.auth.token.email.matches(".*@portalcoren-rs\\.gov\\.br");
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == resource.data.uid;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasOnly(['uid', 'name', 'email', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 && data.uid.size() < 100 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             isValidEmail(data.email) && data.email.matches(".*@portalcoren-rs\\.gov\\.br") &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidBook(data) {
+      return data.keys().hasAll(['title', 'ownerId', 'ownerName', 'status', 'createdAt']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.ownerId is string && data.ownerId.size() > 0 && data.ownerId.size() < 100 &&
+             data.ownerName is string && data.ownerName.size() > 0 && data.ownerName.size() < 100 &&
+             data.status in ['disponível', 'emprestado', 'em processo de empréstimo'] &&
+             data.createdAt is timestamp &&
+             (!('synopsis' in data) || data.synopsis == null || data.synopsis is string) &&
+             (!('author' in data) || data.author == null || data.author is string) &&
+             (!('ownerEmail' in data) || data.ownerEmail == null || data.ownerEmail is string) &&
+             (!('borrowerId' in data) || data.borrowerId == null || (data.borrowerId is string && data.borrowerId.size() < 100)) &&
+             (!('borrowerName' in data) || data.borrowerName == null || (data.borrowerName is string && data.borrowerName.size() < 100)) &&
+             (!('loanDate' in data) || data.loanDate == null || data.loanDate is timestamp) &&
+             (!('returnDate' in data) || data.returnDate == null || data.returnDate is timestamp) &&
+             (!('ownerConfirmed' in data) || data.ownerConfirmed == null || data.ownerConfirmed is bool) &&
+             (!('borrowerConfirmed' in data) || data.borrowerConfirmed == null || data.borrowerConfirmed is bool);
+    }
+
+    match /users/{userId} {
+      allow read: if isEmployee();
+      allow create: if isOwner(userId) && isEmployee() && isValidUser(request.resource.data) && uidUnchanged();
+      allow update: if isOwner(userId) && isEmployee() && isValidUser(request.resource.data) && uidNotModified() &&
+                    request.resource.data.email == resource.data.email &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    match /books/{bookId} {
+      allow read: if isEmployee();
+      allow create: if isEmployee() && isValidBook(request.resource.data) && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isEmployee() && isValidBook(request.resource.data) &&
+                    request.resource.data.ownerId == resource.data.ownerId &&
+                    request.resource.data.createdAt == resource.data.createdAt &&
+                    (
+                      request.auth.uid == resource.data.ownerId ||
+                      request.auth.uid == resource.data.borrowerId ||
+                      (resource.data.status == 'disponível' && request.resource.data.status == 'em processo de empréstimo' && request.resource.data.borrowerId == request.auth.uid)
+                    );
+      allow delete: if isEmployee() && request.auth.uid == resource.data.ownerId;
+    }
+  }
+}

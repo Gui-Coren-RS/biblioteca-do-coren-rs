@@ -1,0 +1,5 @@
+{
+  "name": "Sistema de Empréstimo de Livros",
+  "description": "Sistema para funcionários da empresa emprestarem e pegarem livros emprestados.",
+  "requestFramePermissions": []
+}

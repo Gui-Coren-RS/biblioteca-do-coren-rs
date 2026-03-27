@@ -201,7 +201,8 @@ export function Dashboard() {
         loanDate: null,
         returnDate: null,
         ownerConfirmed: false,
-        borrowerConfirmed: false
+        borrowerConfirmed: false,
+        waitlist: [] // Clear waitlist after notifying
       });
 
       if (book.ownerEmail) {
@@ -217,6 +218,24 @@ export function Dashboard() {
           });
         } catch (err) {
           console.error("Erro ao enviar notificação por e-mail", err);
+        }
+      }
+
+      // Notify waitlist
+      if (book.waitlist && book.waitlist.length > 0) {
+        const waitlistEmails = book.waitlist.map((w: any) => w.email).join(',');
+        try {
+          await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: waitlistEmails,
+              subject: `Livro Disponível: ${book.title}`,
+              text: `Olá,\n\nO livro "${book.title}" que você estava aguardando acabou de ficar disponível na biblioteca!\n\nAcesse o sistema para solicitar o empréstimo.\n\nAtenciosamente,\nBiblioteca da Empresa`
+            })
+          });
+        } catch (err) {
+          console.error("Erro ao enviar notificação para a lista de espera", err);
         }
       }
     } catch (error) {

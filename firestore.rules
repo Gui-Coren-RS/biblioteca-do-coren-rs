@@ -78,10 +78,12 @@ service cloud.firestore {
              (!('ownerEmail' in data) || data.ownerEmail == null || data.ownerEmail is string) &&
              (!('borrowerId' in data) || data.borrowerId == null || (data.borrowerId is string && data.borrowerId.size() < 100)) &&
              (!('borrowerName' in data) || data.borrowerName == null || (data.borrowerName is string && data.borrowerName.size() < 100)) &&
+             (!('borrowerEmail' in data) || data.borrowerEmail == null || data.borrowerEmail is string) &&
              (!('loanDate' in data) || data.loanDate == null || data.loanDate is timestamp) &&
              (!('returnDate' in data) || data.returnDate == null || data.returnDate is timestamp) &&
              (!('ownerConfirmed' in data) || data.ownerConfirmed == null || data.ownerConfirmed is bool) &&
-             (!('borrowerConfirmed' in data) || data.borrowerConfirmed == null || data.borrowerConfirmed is bool);
+             (!('borrowerConfirmed' in data) || data.borrowerConfirmed == null || data.borrowerConfirmed is bool) &&
+             (!('waitlist' in data) || data.waitlist == null || data.waitlist is list);
     }
 
     match /users/{userId} {
@@ -101,7 +103,8 @@ service cloud.firestore {
                     (
                       request.auth.uid == resource.data.ownerId ||
                       request.auth.uid == resource.data.borrowerId ||
-                      (resource.data.status == 'disponível' && request.resource.data.status == 'em processo de empréstimo' && request.resource.data.borrowerId == request.auth.uid)
+                      (resource.data.status == 'disponível' && request.resource.data.status == 'em processo de empréstimo' && request.resource.data.borrowerId == request.auth.uid) ||
+                      (resource.data.status == 'emprestado' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['waitlist']))
                     );
       allow delete: if isEmployee() && request.auth.uid == resource.data.ownerId;
     }

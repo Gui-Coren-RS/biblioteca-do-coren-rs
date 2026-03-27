@@ -30,6 +30,18 @@
         "status": { "type": "string", "enum": ["disponível", "emprestado", "em processo de empréstimo"] },
         "ownerConfirmed": { "type": "boolean" },
         "borrowerConfirmed": { "type": "boolean" },
+        "waitlist": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "uid": { "type": "string" },
+              "name": { "type": "string" },
+              "email": { "type": "string" }
+            },
+            "required": ["uid", "name", "email"]
+          }
+        },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "ownerId", "ownerName", "status", "createdAt"]

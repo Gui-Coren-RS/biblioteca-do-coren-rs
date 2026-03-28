@@ -12,7 +12,7 @@ export function Library() {
   const { user, userData } = useAuth();
   const [availableBooks, setAvailableBooks] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [confirmAction, setConfirmAction] = useState<{ type: 'borrow' | 'cancel', payload: any } | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ type: 'borrow' | 'cancel' | 'notify', payload: any } | null>(null);
   const [alertInfo, setAlertInfo] = useState<{ title: string, message: string } | null>(null);
 
   useEffect(() => {
@@ -142,14 +142,14 @@ export function Library() {
   const borrowed = filteredBooks.filter(b => b.status === 'emprestado');
 
   const renderBookCard = (book: any) => (
-    <div key={book.id} className="bg-white overflow-hidden shadow rounded-lg border border-gray-200 flex flex-col">
+    <div key={book.id} className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col transition-colors duration-200">
       <div className="p-5 flex-1">
         <div className="flex items-start">
           <div className="flex-shrink-0 mt-1">
-            <Book className="h-6 w-6 text-blue-600" />
+            <Book className="h-6 w-6 text-blue-600 dark:text-blue-400" />
           </div>
           <div className="ml-4 w-0 flex-1">
-            <h3 className="text-lg font-medium text-gray-900 line-clamp-2" title={book.title}>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white line-clamp-2" title={book.title}>
               {book.title}
             </h3>
           </div>
@@ -157,35 +157,35 @@ export function Library() {
         
         <div className="mt-4 space-y-2">
           {book.author && (
-            <div className="flex items-center text-sm text-gray-500">
-              <User className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
+            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+              <User className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <span className="truncate">Autor(a): {book.author}</span>
             </div>
           )}
           
-          <div className="flex items-center text-sm text-gray-500">
-            <User className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
+          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+            <User className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <span className="truncate">Dono: {book.ownerName}</span>
           </div>
 
           {book.synopsis && (
             <div className="mt-3">
-              <div className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                <FileText className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
+              <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <FileText className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 Sinopse
               </div>
-              <p className="text-sm text-gray-600 line-clamp-3" title={book.synopsis}>
+              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3" title={book.synopsis}>
                 {book.synopsis}
               </p>
             </div>
           )}
         </div>
       </div>
-      <div className="bg-gray-50 px-5 py-3 border-t border-gray-200">
+      <div className="bg-gray-50 dark:bg-gray-800/50 px-5 py-3 border-t border-gray-200 dark:border-gray-700 transition-colors duration-200">
         {book.status === 'disponível' ? (
           <button
             onClick={() => handleBorrowRequest(book)}
-            className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors duration-200"
           >
             <Send className="h-4 w-4 mr-2" />
             Solicitar Empréstimo
@@ -193,7 +193,7 @@ export function Library() {
         ) : book.status === 'emprestado' ? (
           <button
             onClick={() => handleNotifyMe(book)}
-            className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-colors duration-200"
           >
             <Bell className="h-4 w-4 mr-2" />
             Avise-me quando disponível
@@ -201,7 +201,7 @@ export function Library() {
         ) : book.borrowerId === user?.uid ? (
           <button
             onClick={() => handleCancelRequest(book.id)}
-            className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 transition-colors duration-200"
           >
             <XCircle className="h-4 w-4 mr-2" />
             Cancelar solicitação
@@ -209,7 +209,7 @@ export function Library() {
         ) : (
           <button
             disabled
-            className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-500 bg-gray-200 cursor-not-allowed"
+            className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 cursor-not-allowed transition-colors duration-200"
           >
             <Clock className="h-4 w-4 mr-2" />
             Em processo
@@ -223,17 +223,17 @@ export function Library() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Biblioteca da Empresa</h2>
-          <p className="text-sm text-gray-500">Livros de outros colegas</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Biblioteca da Empresa</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Livros de outros colegas</p>
         </div>
         
         <div className="relative w-full sm:w-64">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+            <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors duration-200"
             placeholder="Buscar livros..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -242,10 +242,10 @@ export function Library() {
       </div>
 
       {filteredBooks.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg border border-gray-200 shadow-sm">
-          <Book className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Nenhum livro encontrado</h3>
-          <p className="mt-1 text-sm text-gray-500">
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-200">
+          <Book className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Nenhum livro encontrado</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Não há livros correspondentes à sua busca.
           </p>
         </div>
@@ -253,7 +253,7 @@ export function Library() {
         <div className="space-y-10">
           {available.length > 0 && (
             <section>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Disponíveis</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Disponíveis</h3>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {available.map(renderBookCard)}
               </div>
@@ -262,7 +262,7 @@ export function Library() {
 
           {inProcess.length > 0 && (
             <section>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Em Processo de Empréstimo</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Em Processo de Empréstimo</h3>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {inProcess.map(renderBookCard)}
               </div>
@@ -271,7 +271,7 @@ export function Library() {
 
           {borrowed.length > 0 && (
             <section>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Emprestados</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Emprestados</h3>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {borrowed.map(renderBookCard)}
               </div>

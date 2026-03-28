@@ -270,14 +270,14 @@ export function Dashboard() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 transition-colors duration-200">
       {/* Livros Cadastrados (Meus Livros Disponíveis) */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Meus Livros Cadastrados (Disponíveis)</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Meus Livros Cadastrados (Disponíveis)</h2>
           <button
             onClick={() => setIsAdding(!isAdding)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors duration-200"
           >
             <Plus className="h-4 w-4 mr-2" />
             Adicionar Livro
@@ -285,13 +285,13 @@ export function Dashboard() {
         </div>
 
         {isAdding && (
-          <form onSubmit={handleAddBook} className="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col gap-4">
+          <form onSubmit={handleAddBook} className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col gap-4 transition-colors duration-200">
             <input
               type="text"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="Título do Livro *"
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              className="rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border dark:bg-gray-700 dark:text-white transition-colors duration-200"
               required
             />
             <input
@@ -299,86 +299,86 @@ export function Dashboard() {
               value={newAuthor}
               onChange={(e) => setNewAuthor(e.target.value)}
               placeholder="Autor(a)"
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              className="rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border dark:bg-gray-700 dark:text-white transition-colors duration-200"
             />
             <textarea
               value={newSynopsis}
               onChange={(e) => setNewSynopsis(e.target.value)}
               placeholder="Sinopse"
               rows={3}
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              className="rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border dark:bg-gray-700 dark:text-white transition-colors duration-200"
             />
             <div className="flex gap-2">
-              <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+              <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 transition-colors duration-200">
                 Salvar
               </button>
-              <button type="button" onClick={() => setIsAdding(false)} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+              <button type="button" onClick={() => setIsAdding(false)} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
                 Cancelar
               </button>
             </div>
           </form>
         )}
 
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
+        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {myBooks.filter(b => b.status === 'disponível').length === 0 ? (
-              <li className="px-6 py-4 text-center text-gray-500">
+              <li className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                 Você não tem livros disponíveis no momento.
               </li>
             ) : (
               myBooks.filter(b => b.status === 'disponível').map((book) => (
-                <li key={book.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <li key={book.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200">
                   {editingBookId === book.id ? (
                     <div className="flex-1 flex flex-col gap-2">
                       <input
                         type="text"
                         value={editForm.title}
                         onChange={(e) => setEditForm({...editForm, title: e.target.value})}
-                        className="rounded-md border-gray-300 shadow-sm p-2 border text-sm"
+                        className="rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 border text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                         placeholder="Título"
                       />
                       <input
                         type="text"
                         value={editForm.author}
                         onChange={(e) => setEditForm({...editForm, author: e.target.value})}
-                        className="rounded-md border-gray-300 shadow-sm p-2 border text-sm"
+                        className="rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 border text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                         placeholder="Autor(a)"
                       />
                       <textarea
                         value={editForm.synopsis}
                         onChange={(e) => setEditForm({...editForm, synopsis: e.target.value})}
-                        className="rounded-md border-gray-300 shadow-sm p-2 border text-sm"
+                        className="rounded-md border-gray-300 dark:border-gray-600 shadow-sm p-2 border text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                         placeholder="Sinopse"
                         rows={2}
                       />
                       <div className="flex gap-2">
-                        <button onClick={() => handleSaveEdit(book.id)} className="text-xs bg-blue-600 text-white px-3 py-1 rounded">Salvar</button>
-                        <button onClick={() => setEditingBookId(null)} className="text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded">Cancelar</button>
+                        <button onClick={() => handleSaveEdit(book.id)} className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors duration-200">Salvar</button>
+                        <button onClick={() => setEditingBookId(null)} className="text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">Cancelar</button>
                       </div>
                     </div>
                   ) : (
                     <>
                       <div className="flex items-start">
-                        <Book className="h-6 w-6 text-green-500 mr-3 mt-1" />
+                        <Book className="h-6 w-6 text-green-500 dark:text-green-400 mr-3 mt-1" />
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{book.title}</p>
-                          {book.author && <p className="text-xs text-gray-600">Autor(a): {book.author}</p>}
-                          {book.synopsis && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{book.synopsis}</p>}
-                          <p className="text-sm text-gray-500 mt-1">
-                            Status: <span className="text-green-600">{book.status}</span>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{book.title}</p>
+                          {book.author && <p className="text-xs text-gray-600 dark:text-gray-400">Autor(a): {book.author}</p>}
+                          {book.synopsis && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{book.synopsis}</p>}
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Status: <span className="text-green-600 dark:text-green-400">{book.status}</span>
                           </p>
                         </div>
                       </div>
                       <div className="flex space-x-2 shrink-0">
                         <button
                           onClick={() => startEditing(book)}
-                          className="text-sm text-blue-600 hover:text-blue-900"
+                          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors duration-200"
                         >
                           Editar
                         </button>
                         <button
                           onClick={() => handleDeleteBook(book.id)}
-                          className="text-sm text-red-600 hover:text-red-900 ml-4"
+                          className="text-sm text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 ml-4 transition-colors duration-200"
                         >
                           Excluir
                         </button>
@@ -394,29 +394,29 @@ export function Dashboard() {
 
       {/* Livros Emprestados (Meus Livros com Outros) */}
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Livros Emprestados (Com Outros)</h2>
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Livros Emprestados (Com Outros)</h2>
+        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {myBooks.filter(b => b.status === 'emprestado' || b.status === 'em processo de empréstimo').length === 0 ? (
-              <li className="px-6 py-4 text-center text-gray-500">
+              <li className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                 Nenhum livro seu está emprestado ou em processo no momento.
               </li>
             ) : (
               myBooks.filter(b => b.status === 'emprestado' || b.status === 'em processo de empréstimo').map((book) => (
-                <li key={book.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <li key={book.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200">
                   <div className="flex items-start">
-                    <Book className={`h-6 w-6 mr-3 mt-1 ${book.status === 'emprestado' ? 'text-orange-400' : 'text-yellow-500'}`} />
+                    <Book className={`h-6 w-6 mr-3 mt-1 ${book.status === 'emprestado' ? 'text-orange-400 dark:text-orange-500' : 'text-yellow-500 dark:text-yellow-400'}`} />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{book.title}</p>
-                      <p className="text-sm text-gray-500">
-                        Status: <span className={book.status === 'emprestado' ? 'text-orange-600' : 'text-yellow-600'}>{book.status}</span>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{book.title}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Status: <span className={book.status === 'emprestado' ? 'text-orange-600 dark:text-orange-400' : 'text-yellow-600 dark:text-yellow-400'}>{book.status}</span>
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Solicitado por: {book.borrowerName}
                       </p>
                       
                       {book.status === 'em processo de empréstimo' && (
-                        <div className="mt-2 p-2 bg-yellow-50 rounded text-xs text-yellow-800">
+                        <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/30 rounded text-xs text-yellow-800 dark:text-yellow-200 transition-colors duration-200">
                           {!book.ownerConfirmed ? (
                             "Você precisa confirmar a entrega do livro."
                           ) : (
@@ -427,10 +427,10 @@ export function Dashboard() {
 
                       {book.status === 'emprestado' && (
                         <>
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             Emprestado em: {book.loanDate?.toDate ? format(book.loanDate.toDate(), "dd/MM/yyyy", { locale: ptBR }) : ''}
                           </p>
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             Devolução prevista: {book.returnDate?.toDate ? format(book.returnDate.toDate(), "dd/MM/yyyy", { locale: ptBR }) : ''}
                           </p>
                         </>
@@ -442,7 +442,7 @@ export function Dashboard() {
                       <>
                         <button
                           onClick={() => handleOwnerConfirm(book)}
-                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700"
+                          className="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 transition-colors duration-200"
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
                           Confirmar Entrega
@@ -475,27 +475,27 @@ export function Dashboard() {
 
       {/* Livros Comigo (Peguei Emprestado) */}
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Livros Comigo (Emprestados)</h2>
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Livros Comigo (Emprestados)</h2>
+        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {borrowedBooks.length === 0 ? (
-              <li className="px-6 py-4 text-center text-gray-500">
+              <li className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                 Você não tem nenhum livro emprestado no momento.
               </li>
             ) : (
               borrowedBooks.map((book) => (
-                <li key={book.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <li key={book.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200">
                   <div className="flex items-start">
-                    <Clock className={`h-6 w-6 mr-3 mt-1 ${book.status === 'emprestado' ? 'text-orange-400' : 'text-yellow-500'}`} />
+                    <Clock className={`h-6 w-6 mr-3 mt-1 ${book.status === 'emprestado' ? 'text-orange-400 dark:text-orange-500' : 'text-yellow-500 dark:text-yellow-400'}`} />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{book.title}</p>
-                      <p className="text-sm text-gray-500">Dono: {book.ownerName}</p>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Status: <span className={book.status === 'emprestado' ? 'text-orange-600' : 'text-yellow-600'}>{book.status}</span>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{book.title}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Dono: {book.ownerName}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Status: <span className={book.status === 'emprestado' ? 'text-orange-600 dark:text-orange-400' : 'text-yellow-600 dark:text-yellow-400'}>{book.status}</span>
                       </p>
 
                       {book.status === 'em processo de empréstimo' && (
-                        <div className="mt-2 p-2 bg-yellow-50 rounded text-xs text-yellow-800">
+                        <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/30 rounded text-xs text-yellow-800 dark:text-yellow-200 transition-colors duration-200">
                           {!book.borrowerConfirmed ? (
                             "Você precisa confirmar o recebimento do livro."
                           ) : (
@@ -505,7 +505,7 @@ export function Dashboard() {
                       )}
 
                       {book.status === 'emprestado' && (
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                           Data do empréstimo: {book.loanDate?.toDate ? format(book.loanDate.toDate(), "dd/MM/yyyy", { locale: ptBR }) : ''}
                         </p>
                       )}
@@ -515,7 +515,7 @@ export function Dashboard() {
                     {book.status === 'em processo de empréstimo' && !book.borrowerConfirmed && (
                       <button
                         onClick={() => handleBorrowerConfirm(book)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700"
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 transition-colors duration-200"
                       >
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Confirmar Recebimento
@@ -524,7 +524,7 @@ export function Dashboard() {
                     {book.status === 'emprestado' && (
                       <button
                         onClick={() => handleReturnBook(book)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700"
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors duration-200"
                       >
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Devolver

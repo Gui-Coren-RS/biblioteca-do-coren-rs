@@ -194,6 +194,32 @@ export function Dashboard() {
   const handleReturnBook = async (book: any) => {
     try {
       await updateDoc(doc(db, 'books', book.id), {
+        status: 'em processo de devolução',
+      });
+
+      if (book.ownerEmail) {
+        try {
+          await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: book.ownerEmail,
+              subject: `Confirmação de Devolução: ${book.title}`,
+              text: `Olá ${book.ownerName},\n\nO usuário ${book.borrowerName} informou que devolveu o livro "${book.title}".\n\nPor favor, acesse o sistema e confirme o recebimento do livro para que ele fique disponível novamente.\n\nAtenciosamente,\nBiblioteca da Empresa`
+            })
+          });
+        } catch (err) {
+          console.error("Erro ao enviar notificação por e-mail", err);
+        }
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `books/${book.id}`);
+    }
+  };
+
+  const handleConfirmReturn = async (book: any) => {
+    try {
+      await updateDoc(doc(db, 'books', book.id), {
         status: 'disponível',
         borrowerId: null,
         borrowerName: null,
@@ -204,22 +230,6 @@ export function Dashboard() {
         borrowerConfirmed: false,
         waitlist: [] // Clear waitlist after notifying
       });
-
-      if (book.ownerEmail) {
-        try {
-          await fetch('/api/send-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              to: book.ownerEmail,
-              subject: `Livro Devolvido: ${book.title}`,
-              text: `Olá ${book.ownerName},\n\nO livro "${book.title}" foi marcado como devolvido por ${book.borrowerName}.\n\nEle já está disponível novamente na biblioteca.\n\nAtenciosamente,\nBiblioteca da Empresa`
-            })
-          });
-        } catch (err) {
-          console.error("Erro ao enviar notificação por e-mail", err);
-        }
-      }
 
       // Notify waitlist
       if (book.waitlist && book.waitlist.length > 0) {
@@ -397,19 +407,19 @@ export function Dashboard() {
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Livros Emprestados (Com Outros)</h2>
         <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md border border-gray-200 dark:border-gray-700 transition-colors duration-200">
           <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-            {myBooks.filter(b => b.status === 'emprestado' || b.status === 'em processo de empréstimo').length === 0 ? (
+            {myBooks.filter(b => b.status === 'emprestado' || b.status === 'em processo de empréstimo' || b.status === 'em processo de devolução').length === 0 ? (
               <li className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                 Nenhum livro seu está emprestado ou em processo no momento.
               </li>
             ) : (
-              myBooks.filter(b => b.status === 'emprestado' || b.status === 'em processo de empréstimo').map((book) => (
+              myBooks.filter(b => b.status === 'emprestado' || b.status === 'em processo de empréstimo' || b.status === 'em processo de devolução').map((book) => (
                 <li key={book.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200">
                   <div className="flex items-start">
-                    <Book className={`h-6 w-6 mr-3 mt-1 ${book.status === 'emprestado' ? 'text-orange-400 dark:text-orange-500' : 'text-yellow-500 dark:text-yellow-400'}`} />
+                    <Book className={`h-6 w-6 mr-3 mt-1 ${book.status === 'emprestado' ? 'text-orange-400 dark:text-orange-500' : book.status === 'em processo de devolução' ? 'text-blue-500 dark:text-blue-400' : 'text-yellow-500 dark:text-yellow-400'}`} />
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">{book.title}</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Status: <span className={book.status === 'emprestado' ? 'text-orange-600 dark:text-orange-400' : 'text-yellow-600 dark:text-yellow-400'}>{book.status}</span>
+                        Status: <span className={book.status === 'emprestado' ? 'text-orange-600 dark:text-orange-400' : book.status === 'em processo de devolução' ? 'text-blue-600 dark:text-blue-400' : 'text-yellow-600 dark:text-yellow-400'}>{book.status}</span>
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Solicitado por: {book.borrowerName}
@@ -425,7 +435,13 @@ export function Dashboard() {
                         </div>
                       )}
 
-                      {book.status === 'emprestado' && (
+                      {book.status === 'em processo de devolução' && (
+                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 rounded text-xs text-blue-800 dark:text-blue-200 transition-colors duration-200">
+                          O usuário informou que devolveu o livro. Confirme o recebimento.
+                        </div>
+                      )}
+
+                      {(book.status === 'emprestado' || book.status === 'em processo de devolução') && (
                         <>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             Emprestado em: {book.loanDate?.toDate ? format(book.loanDate.toDate(), "dd/MM/yyyy", { locale: ptBR }) : ''}
@@ -456,13 +472,13 @@ export function Dashboard() {
                         </button>
                       </>
                     )}
-                    {book.status === 'emprestado' && (
+                    {book.status === 'em processo de devolução' && (
                       <button
-                        onClick={() => handleReturnBook(book)}
+                        onClick={() => handleConfirmReturn(book)}
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700"
                       >
                         <CheckCircle className="h-4 w-4 mr-1" />
-                        Marcar como Devolvido
+                        Confirmar Devolução
                       </button>
                     )}
                   </div>
@@ -486,12 +502,12 @@ export function Dashboard() {
               borrowedBooks.map((book) => (
                 <li key={book.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200">
                   <div className="flex items-start">
-                    <Clock className={`h-6 w-6 mr-3 mt-1 ${book.status === 'emprestado' ? 'text-orange-400 dark:text-orange-500' : 'text-yellow-500 dark:text-yellow-400'}`} />
+                    <Clock className={`h-6 w-6 mr-3 mt-1 ${book.status === 'emprestado' ? 'text-orange-400 dark:text-orange-500' : book.status === 'em processo de devolução' ? 'text-blue-500 dark:text-blue-400' : 'text-yellow-500 dark:text-yellow-400'}`} />
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">{book.title}</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Dono: {book.ownerName}</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Status: <span className={book.status === 'emprestado' ? 'text-orange-600 dark:text-orange-400' : 'text-yellow-600 dark:text-yellow-400'}>{book.status}</span>
+                        Status: <span className={book.status === 'emprestado' ? 'text-orange-600 dark:text-orange-400' : book.status === 'em processo de devolução' ? 'text-blue-600 dark:text-blue-400' : 'text-yellow-600 dark:text-yellow-400'}>{book.status}</span>
                       </p>
 
                       {book.status === 'em processo de empréstimo' && (
@@ -504,7 +520,13 @@ export function Dashboard() {
                         </div>
                       )}
 
-                      {book.status === 'emprestado' && (
+                      {book.status === 'em processo de devolução' && (
+                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 rounded text-xs text-blue-800 dark:text-blue-200 transition-colors duration-200">
+                          Aguardando o dono confirmar a devolução.
+                        </div>
+                      )}
+
+                      {(book.status === 'emprestado' || book.status === 'em processo de devolução') && (
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                           Data do empréstimo: {book.loanDate?.toDate ? format(book.loanDate.toDate(), "dd/MM/yyyy", { locale: ptBR }) : ''}
                         </p>

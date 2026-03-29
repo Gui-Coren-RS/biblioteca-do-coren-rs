@@ -139,7 +139,7 @@ export function Library() {
 
   const available = filteredBooks.filter(b => b.status === 'disponível');
   const inProcess = filteredBooks.filter(b => b.status === 'em processo de empréstimo');
-  const borrowed = filteredBooks.filter(b => b.status === 'emprestado');
+  const borrowed = filteredBooks.filter(b => b.status === 'emprestado' || b.status === 'em processo de devolução');
 
   const renderBookCard = (book: any) => (
     <div key={book.id} className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col transition-colors duration-200">
@@ -190,7 +190,7 @@ export function Library() {
             <Send className="h-4 w-4 mr-2" />
             Solicitar Empréstimo
           </button>
-        ) : book.status === 'emprestado' ? (
+        ) : (book.status === 'emprestado' || book.status === 'em processo de devolução') ? (
           <button
             onClick={() => handleNotifyMe(book)}
             className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-colors duration-200"

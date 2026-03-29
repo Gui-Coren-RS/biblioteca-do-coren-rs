@@ -26,7 +26,7 @@ service cloud.firestore {
     //   - borrowerName: string (optional) - Borrower User Name
     //   - loanDate: timestamp (optional) - Date of loan
     //   - returnDate: timestamp (optional) - Expected return date
-    //   - status: string (required) - 'disponível', 'emprestado', 'em processo de empréstimo'
+    //   - status: string (required) - 'disponível', 'emprestado', 'em processo de empréstimo', 'em processo de devolução'
     //   - ownerConfirmed: boolean (optional)
     //   - borrowerConfirmed: boolean (optional)
     //   - createdAt: timestamp (required, immutable) - Creation timestamp
@@ -71,7 +71,7 @@ service cloud.firestore {
              data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
              data.ownerId is string && data.ownerId.size() > 0 && data.ownerId.size() < 100 &&
              data.ownerName is string && data.ownerName.size() > 0 && data.ownerName.size() < 100 &&
-             data.status in ['disponível', 'emprestado', 'em processo de empréstimo'] &&
+             data.status in ['disponível', 'emprestado', 'em processo de empréstimo', 'em processo de devolução'] &&
              data.createdAt is timestamp &&
              (!('synopsis' in data) || data.synopsis == null || data.synopsis is string) &&
              (!('author' in data) || data.author == null || data.author is string) &&
@@ -104,7 +104,7 @@ service cloud.firestore {
                       request.auth.uid == resource.data.ownerId ||
                       request.auth.uid == resource.data.borrowerId ||
                       (resource.data.status == 'disponível' && request.resource.data.status == 'em processo de empréstimo' && request.resource.data.borrowerId == request.auth.uid) ||
-                      (resource.data.status == 'emprestado' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['waitlist']))
+                      ((resource.data.status == 'emprestado' || resource.data.status == 'em processo de devolução') && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['waitlist']))
                     );
       allow delete: if isEmployee() && request.auth.uid == resource.data.ownerId;
     }
